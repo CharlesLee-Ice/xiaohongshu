@@ -10,7 +10,7 @@
         android:layout_marginTop="@dimen/phone_margin"
         android:layout_marginLeft="@dimen/phone_margin"
         android:layout_marginRight="@dimen/phone_margin"
-        android:layout_marginBottom="@dimen/phone_content_margin_bottom"
+        android:layout_marginBottom="@dimen/phone_margin_bottom"
         android:scrollbars="none">
     <ImageView
         android:id="@+id/image_phone_content"

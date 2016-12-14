@@ -39,14 +39,25 @@ public class WelcomePageTwoFragment extends WelcomeBaseFragment {
         mLogo = (ImageView) layout.findViewById(R.id.logo);
         mLoginAndRegister = (LinearLayout) layout.findViewById(R.id.login_and_register);
 
+        final ImageView indicatorLogin = (ImageView) layout.findViewById(R.id.indicator_login);
+        final ImageView indicatorRegister = (ImageView) layout.findViewById(R.id.indicator_register);
+
         ViewPager viewPager = (ViewPager) layout.findViewById(R.id.view_pager_login_register);
         viewPager.setAdapter(new LoginRegisterPagerAdapter(getActivity().getSupportFragmentManager()));
         viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
+                if (position == 0) {
+                    indicatorLogin.setVisibility(View.VISIBLE);
+                    indicatorRegister.setVisibility(View.INVISIBLE);
+                } else if (position == 1) {
+                    indicatorLogin.setVisibility(View.INVISIBLE);
+                    indicatorRegister.setVisibility(View.VISIBLE);
+                }
             }
         });
+
         return layout;
     }
 
@@ -56,7 +67,7 @@ public class WelcomePageTwoFragment extends WelcomeBaseFragment {
             ViewCompat.animate(mLogo)
                     .scaleX(0.6f)
                     .scaleY(0.6f)
-                    .translationY(-500f)
+                    .translationY(-600f)
                     .setInterpolator(new FastOutSlowInInterpolator())
                     .setDuration(500)
                     .start();

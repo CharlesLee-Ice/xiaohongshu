@@ -21,12 +21,14 @@ import android.widget.ScrollView;
 public class WelcomePageOneFragment extends WelcomeBaseFragment {
 
     private int PHONE_CONTENT_TOP_MARGIN_PIXELS = 150;
+    private int PHONE_CONTENT_BUTTON_MARGIN_PIXELS = 85;
     private ImageView mImagePhone;
     private ImageView mImagePhoneContent;
 
     private ScrollView mPhoneContentScroll;
-    private int mImagePhoneContentShowHeight;
+    private int mImagePhoneRealHeight;
     private int mImagePhoneContentTotalHeight;
+    private float mImageScaleRatio;
 
     private static WelcomePageOneFragment sWeclomePageOne;
     public static WelcomePageOneFragment newInstance() {
@@ -46,8 +48,10 @@ public class WelcomePageOneFragment extends WelcomeBaseFragment {
         int destPhoneWidth = getPhoneBitmapRealWidth();
 
         Bitmap phone = BitmapFactory.decodeResource(getResources(), R.drawable.welcomeanim_phone);
+        Bitmap scalePhone = bitmapScaleWithWidth(destPhoneWidth, phone);
+        mImagePhoneRealHeight = scalePhone.getHeight();
         mImagePhone.setScaleType(ImageView.ScaleType.MATRIX);
-        mImagePhone.setImageBitmap(bitmapScaleWithWidth(destPhoneWidth, phone));
+        mImagePhone.setImageBitmap(scalePhone);
 
         Bitmap phoneContent = BitmapFactory.decodeResource(getResources(), R.drawable.welcomeanim_frist_scrollbg);
         Bitmap sizedPhoneContent = bitmapScaleWithWidth(destPhoneWidth, phoneContent);
@@ -56,20 +60,22 @@ public class WelcomePageOneFragment extends WelcomeBaseFragment {
 
         mPhoneContentScroll = (ScrollView) layout.findViewById(R.id.scroll_phone_content);
         RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) mPhoneContentScroll.getLayoutParams();
-        int marginTopOffset = (int) (getPhoneScaleRatio(destPhoneWidth) * PHONE_CONTENT_TOP_MARGIN_PIXELS);
+        mImageScaleRatio = getPhoneScaleRatio(destPhoneWidth);
+        int marginTopOffset = (int) (mImageScaleRatio * PHONE_CONTENT_TOP_MARGIN_PIXELS);
+        int marginBottom = getPhoneContentBottomMargin();
         layoutParams.topMargin += marginTopOffset;
+        layoutParams.bottomMargin = marginBottom > 0 ? marginBottom : 0;
         mPhoneContentScroll.setLayoutParams(layoutParams);
 
-        mImagePhoneContentShowHeight = getPhoneBitmapRealHeight() - marginTopOffset;
         mImagePhoneContentTotalHeight = sizedPhoneContent.getHeight();
         return layout;
     }
 
     @Override
     public void playAnimation() {
-        ObjectAnimator animator = ObjectAnimator.ofInt(mPhoneContentScroll, "scrollY", 0, mImagePhoneContentTotalHeight - mImagePhoneContentShowHeight);
+        ObjectAnimator animator = ObjectAnimator.ofInt(mPhoneContentScroll, "scrollY", 0, mImagePhoneContentTotalHeight);
         animator.setInterpolator(new FastOutSlowInInterpolator());
-        animator.setDuration(1500);
+        animator.setDuration(2000);
         animator.start();
     }
 
@@ -86,16 +92,21 @@ public class WelcomePageOneFragment extends WelcomeBaseFragment {
         return screenWidth - (int)(2 * getResources().getDimension(R.dimen.phone_margin));
     }
 
-    protected int getPhoneBitmapRealHeight() {
-        int screenHeight = DisplayUtils.getDisplayHeightPixels(getActivity());
-        return screenHeight - (int) getResources().getDimension(R.dimen.phone_margin) - (int) getResources().getDimension(R.dimen.phone_margin_bottom);
-    }
-
     private float getPhoneScaleRatio(int destWidth) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
 
         BitmapFactory.decodeResource(getResources(), R.drawable.welcomeanim_phone, options);
         return destWidth / (float) options.outWidth;
+    }
+
+    private int getPhoneContentBottomMargin() {
+        int total = DisplayUtils.getDisplayHeightPixels(getActivity());
+        int topMargin = (int) getResources().getDimension(R.dimen.phone_margin);
+        int left = total - topMargin - mImagePhoneRealHeight;
+        if (left <= 0) {
+            return 0;
+        }
+        return left + (int) (mImageScaleRatio * PHONE_CONTENT_BUTTON_MARGIN_PIXELS);
     }
 }
